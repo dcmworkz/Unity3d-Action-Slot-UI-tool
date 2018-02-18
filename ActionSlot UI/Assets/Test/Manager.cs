@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
     [SerializeField] private List<Action> actions = new List<Action>();
-    [SerializeField] private List<ActionSlotUI> actionSlots = new List<ActionSlotUI>();
+    [SerializeField] private List<Lairinus.UI.ActionSlotUI> actionSlots = new List<Lairinus.UI.ActionSlotUI>();
+    [SerializeField] private List<Button> actionButtons = new List<Button>();
 
-    void Update()
+    private void Update()
     {
         UpdateActionInput();
         UpdateActionSlots();
@@ -16,13 +18,34 @@ public class Manager : MonoBehaviour
     private void Awake()
     {
         InitializeActionSlots();
+        InitializeActionButtons();
     }
 
-    void InitializeActionSlots()
+    private void InitializeActionSlots()
     {
+        for (var a = 0; a < actionSlots.Count; a++)
+        {
+            if (a < actions.Count && actions[a] != null)
+            {
+                actionSlots[a].SetActionIcon(actions[a].icon);
+            }
+        }
     }
 
-    void UpdateActionInput()
+    private void InitializeActionButtons()
+    {
+        for (var a = 0; a < actionButtons.Count; a++)
+        {
+            int capture = a;
+            if (capture < actions.Count)
+            {
+                Action act = actions[capture];
+                actionButtons[a].onClick.AddListener(() => act.Use());
+            }
+        }
+    }
+
+    private void UpdateActionInput()
     {
         for (var a = 0; a < actions.Count; a++)
         {
@@ -37,7 +60,7 @@ public class Manager : MonoBehaviour
         }
     }
 
-    void UpdateActionSlots()
+    private void UpdateActionSlots()
     {
         for (var a = 0; a < actions.Count; a++)
         {
