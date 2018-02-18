@@ -6,13 +6,13 @@ namespace Lairinus.UI
 {
     public class ActionSlotUI : MonoBehaviour
     {
-        private GameObject _thisGameObject = null;
         [SerializeField] private bool _showOnAwake = true;
+        private GameObject _thisGameObject = null;
 
         /// <summary>
-        /// Configuration for the base UI element
+        /// Configuration for when the Action is currently being used and is alive
         /// </summary>
-        [SerializeField] private BaseUIConfiguration baseConfiguration = new BaseUIConfiguration();
+        [SerializeField] private Configuration actionActiveConfiguration = new Configuration();
 
         /// <summary>
         /// Configuration for when you cannot use the action for a certain period of time
@@ -20,9 +20,45 @@ namespace Lairinus.UI
         [SerializeField] private Configuration actionCooldownConfiguration = new Configuration();
 
         /// <summary>
-        /// Configuration for when the Action is currently being used and is alive
+        /// Configuration for the base UI element
         /// </summary>
-        [SerializeField] private Configuration actionActiveConfiguration = new Configuration();
+        [SerializeField] private BaseUIConfiguration baseConfiguration = new BaseUIConfiguration();
+
+        /// <summary>
+        /// Sets the action slot's main icon image
+        /// </summary>
+        /// <param name="icon"></param>
+        public void SetActionIcon(Sprite icon)
+        {
+            baseConfiguration.SetActionIcon(icon);
+        }
+
+        /// <summary>
+        /// Shows or hides this Action Slot
+        /// </summary>
+        /// <param name="show"></param>
+        public void Show(bool show)
+        {
+            if (_thisGameObject == null)
+                _thisGameObject = gameObject;
+
+            _thisGameObject.SetActive(show);
+        }
+
+        /// <summary>
+        /// Updates the ActionSlot to reflect the Action's cooldowns and durations.
+        /// </summary>
+        public void UpdateActionSlot(float remainingCooldown, float totalCooldown, float remainingDuration, float totalDuration)
+        {
+            actionActiveConfiguration.Update(remainingDuration, totalDuration);
+            actionCooldownConfiguration.Update(remainingCooldown, totalCooldown);
+        }
+
+        private void Awake()
+        {
+            _thisGameObject = gameObject;
+            Show(_showOnAwake);
+        }
 
         [System.Serializable]
         public class BaseUIConfiguration
@@ -44,6 +80,20 @@ namespace Lairinus.UI
         [System.Serializable]
         public class Configuration
         {
+            public TextFormattingOption textFormattingOption = TextFormattingOption.SecondsOnly;
+
+            [SerializeField] private bool _showText = false;
+
+            private GameObject _textCachedGameObject = null;
+
+            [SerializeField] private bool _useConfiguration = true;
+
+            [SerializeField] private Image filledImage = null;
+
+            [SerializeField] private GameObject rootObject = null;
+
+            [SerializeField] private Text textObject = null;
+
             public enum TextFormattingOption
             {
                 SecondsOnly,
@@ -52,25 +102,41 @@ namespace Lairinus.UI
                 HoursThenMinutesThenSeconds
             }
 
-            public bool showText { get { return _showText; } set { _showText = true; } }
-            [SerializeField] private bool _showText = false;
-            [SerializeField] private GameObject rootObject = null;
-            [SerializeField] private Image filledImage = null;
-            [SerializeField] private Text textObject = null;
-            [SerializeField] private bool _useConfiguration = true;
-            private GameObject _textCachedGameObject = null;
             public bool showConfiguration { get { return _useConfiguration; } set { _useConfiguration = true; } }
-            public TextFormattingOption textFormattingOption = TextFormattingOption.SecondsOnly;
+            public bool showText { get { return _showText; } set { _showText = true; } }
 
-            private void Show(bool show)
+            /// <summary>
+            /// Updates the values in the configuration to show/hide appropriately
+            /// </summary>
+            /// <param name="remainingTime"></param>
+            /// <param name="totalTime"></param>
+            public void Update(float remainingTime, float totalTime)
             {
-                if (rootObject == null)
+                if (remainingTime == 0)
+                    Show(false);
+                else
                 {
-                    Debug.LogError("Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!");
+                    if (showConfiguration && remainingTime > 0)
+                    {
+                        Show(true);
+                        SetText(remainingTime);
+                        SetFillAmount(remainingTime, totalTime);
+                    }
+                    else
+                        Show(false);
+                }
+            }
+
+            private void SetFillAmount(float remainingTime, float totalTime)
+            {
+                if (filledImage == null)
+                {
+                    Debug.LogError("Error! Cannot set the value of the image because it doesn't exist!");
                     return;
                 }
 
-                rootObject.SetActive(show);
+                filledImage.type = Image.Type.Filled;
+                filledImage.fillAmount = remainingTime / totalTime;
             }
 
             private void SetText(float remainingSeconds)
@@ -145,75 +211,16 @@ namespace Lairinus.UI
                 }
             }
 
-            private void SetFillAmount(float remainingTime, float totalTime)
+            private void Show(bool show)
             {
-                if (filledImage == null)
+                if (rootObject == null)
                 {
-                    Debug.LogError("Error! Cannot set the value of the image because it doesn't exist!");
+                    Debug.LogError("Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!");
                     return;
                 }
 
-                filledImage.type = Image.Type.Filled;
-                filledImage.fillAmount = remainingTime / totalTime;
+                rootObject.SetActive(show);
             }
-
-            /// <summary>
-            /// Updates the values in the configuration to show/hide appropriately
-            /// </summary>
-            /// <param name="remainingTime"></param>
-            /// <param name="totalTime"></param>
-            public void Update(float remainingTime, float totalTime)
-            {
-                if (remainingTime == 0)
-                    Show(false);
-                else
-                {
-                    if (showConfiguration && remainingTime > 0)
-                    {
-                        Show(true);
-                        SetText(remainingTime);
-                        SetFillAmount(remainingTime, totalTime);
-                    }
-                    else
-                        Show(false);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets the action slot's main icon image
-        /// </summary>
-        /// <param name="icon"></param>
-        public void SetActionIcon(Sprite icon)
-        {
-            baseConfiguration.SetActionIcon(icon);
-        }
-
-        /// <summary>
-        /// Updates the ActionSlot to reflect the Action's cooldowns and durations.
-        /// </summary>
-        public void UpdateActionSlot(float remainingCooldown, float totalCooldown, float remainingDuration, float totalDuration)
-        {
-            actionActiveConfiguration.Update(remainingDuration, totalDuration);
-            actionCooldownConfiguration.Update(remainingCooldown, totalCooldown);
-        }
-
-        private void Awake()
-        {
-            _thisGameObject = gameObject;
-            Show(_showOnAwake);
-        }
-
-        /// <summary>
-        /// Shows or hides this Action Slot
-        /// </summary>
-        /// <param name="show"></param>
-        public void Show(bool show)
-        {
-            if (_thisGameObject == null)
-                _thisGameObject = gameObject;
-
-            _thisGameObject.SetActive(show);
         }
     }
 }

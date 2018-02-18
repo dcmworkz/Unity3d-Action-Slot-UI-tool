@@ -6,13 +6,13 @@ public class Action : MonoBehaviour
 {
     public Sprite icon = null;
     public KeyCode keycode = KeyCode.Alpha1;
-    [SerializeField] private float _totalDuration = 5;
-    [SerializeField] private float _totalCooldown = 10;
-    public float totalDuration { get { return _totalDuration; } }
-    public float totalCooldown { get { return _totalCooldown; } }
-    public float remainingDuration { get; private set; }
-    public float remainingCooldown { get; private set; }
     private bool _onCooldown = false;
+    [SerializeField] private float _totalCooldown = 10;
+    [SerializeField] private float _totalDuration = 5;
+    public float remainingCooldown { get; private set; }
+    public float remainingDuration { get; private set; }
+    public float totalCooldown { get { return _totalCooldown; } }
+    public float totalDuration { get { return _totalDuration; } }
 
     /// <summary>
     /// Uses the Action and starts the appropriate Coroutine
@@ -30,7 +30,7 @@ public class Action : MonoBehaviour
     /// Emulates running an action and waiting for its' cooldown to finish.
     /// </summary>
     /// <returns></returns>
-    IEnumerator ProcessDurationAndCooldownRoutine()
+    private IEnumerator ProcessDurationAndCooldownRoutine()
     {
         remainingDuration = _totalDuration;
 
