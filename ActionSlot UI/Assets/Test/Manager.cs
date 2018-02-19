@@ -40,7 +40,7 @@ public class Manager : MonoBehaviour
             if (capture < actions.Count)
             {
                 Action act = actions[capture];
-                actionButtons[a].onClick.AddListener(() => act.Use());
+                actionButtons[a].onClick.AddListener(() => act.StartAction());
             }
         }
     }
@@ -53,7 +53,7 @@ public class Manager : MonoBehaviour
             {
                 if (Input.GetKeyDown(actions[a].keycode))
                 {
-                    actions[a].Use();
+                    actions[a].StartAction();
                     break;
                 }
             }
@@ -74,4 +74,76 @@ public class Manager : MonoBehaviour
             }
         }
     }
+
+    #region Click Events
+
+    /// <summary>
+    /// Inspector access - sets the duration of the Action
+    /// </summary>
+    /// <param name="durationInSeconds"></param>
+    public void OnClick_SetDuration(int durationInSeconds)
+    {
+        foreach (Action a in actions)
+        {
+            if (a != null)
+            {
+                a.ResetAction();
+                a.SetDurationAndCooldown(durationInSeconds, a.totalCooldown);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Inspector access - sets the cooldown of the action
+    /// </summary>
+    /// <param name="cooldownInSeconds"></param>
+    public void OnClick_SetCooldown(int cooldownInSeconds)
+    {
+        foreach (Action a in actions)
+        {
+            if (a != null)
+            {
+                a.ResetAction();
+                a.SetDurationAndCooldown(a.totalDuration, cooldownInSeconds);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Inspector access - resets an action's cooldown and duration
+    /// </summary>
+    public void OnClick_ResetActions()
+    {
+        foreach (Action a in actions)
+        {
+            if (a != null)
+            {
+                a.ResetAction();
+            }
+        }
+
+        foreach (Lairinus.UI.ActionSlotUI asu in actionSlots)
+        {
+            if (asu != null)
+            {
+                asu.UpdateActionSlot(0, 0, 0, 0);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Inspector access - starts all actions
+    /// </summary>
+    public void OnClick_StartActions()
+    {
+        foreach (Action a in actions)
+        {
+            if (a != null)
+            {
+                a.StartAction();
+            }
+        }
+    }
+
+    #endregion Click Events
 }

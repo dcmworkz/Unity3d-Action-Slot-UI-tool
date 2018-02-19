@@ -163,7 +163,7 @@ namespace Lairinus.UI
                     int fixedAddition = 1;
                     float totalHours = Mathf.Floor(remainingSeconds / hourConversion);
                     float totalMinutes = Mathf.Floor(remainingSeconds / minuteConversion);
-                    float totalSeconds = Mathf.Ceil(remainingSeconds);
+                    float totalSeconds = Mathf.Floor(remainingSeconds);
                     double totalRoundedSeconds = System.Math.Round(remainingSeconds, 2);
                     switch (textFormattingOption)
                     {
@@ -183,7 +183,7 @@ namespace Lairinus.UI
                         case TextFormattingOption.HoursThenMinutesThenSeconds:
                             {
                                 // Check if we can show hours / minutes / seconds
-                                if (remainingSeconds / hourConversion > 0)
+                                if (totalHours > 0)
                                 {
                                     textObject.text = totalHours.ToString() + "h";
                                 }

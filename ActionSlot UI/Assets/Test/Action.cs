@@ -17,13 +17,37 @@ public class Action : MonoBehaviour
     /// <summary>
     /// Uses the Action and starts the appropriate Coroutine
     /// </summary>
-    public void Use()
+    public void StartAction()
     {
         if (!_onCooldown)
         {
             _onCooldown = true;
             StartCoroutine(ProcessDurationAndCooldownRoutine());
         }
+    }
+
+    /// <summary>
+    /// Resets this action completely
+    /// </summary>
+    public void ResetAction()
+    {
+        StopAllCoroutines();
+        _onCooldown = false;
+        remainingCooldown = 0;
+        remainingDuration = 0;
+    }
+
+    /// <summary>
+    /// Sets the total duration and cooldown for this Action.
+    /// </summary>
+    /// <param name="duration"></param>
+    /// <param name="cooldown"></param>
+    public void SetDurationAndCooldown(float duration, float cooldown)
+    {
+        _totalCooldown = cooldown;
+        _totalDuration = duration;
+        remainingCooldown = 0;
+        remainingDuration = 0;
     }
 
     /// <summary>
