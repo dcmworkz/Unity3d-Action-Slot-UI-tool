@@ -89,7 +89,7 @@ MonoBehaviour:
   m_MinSize: {x: 709, y: 492}
   m_MaxSize: {x: 18004, y: 14042}
   vertical: 0
-  controlID: 113
+  controlID: 9
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -354,7 +354,7 @@ MonoBehaviour:
     height: 256
   m_PersistentViewDataDictionary: {fileID: 0}
   m_SearchFilter:
-    m_NameFilter: 
+    m_NameFilter: manager
     m_ClassNames: []
     m_AssetLabels: []
     m_AssetBundleNames: []
@@ -365,34 +365,34 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Test
+    - Assets/Art/Slot Art
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Test
+  - Assets/Art/Slot Art
   m_LastFoldersGridSize: 16
   m_LastProjectPath: D:\__Unity\Games\GitHub Projects\Unity3D Action Slot UI\Unity3d-Action-Slot-UI\ActionSlot
     UI
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 53}
-    m_SelectedIDs: e8270000
-    m_LastClickedID: 10216
+    m_SelectedIDs: 
+    m_LastClickedID: 0
     m_ExpandedIDs: 000000006c27000082270000b2270000ec27000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: Action Icons
+      m_OriginalName: Action Icons
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: 10138
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 11}
     m_SearchString: 
@@ -433,7 +433,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000b628000068290000c62f00001a290000263400007c27000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -571,9 +571,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 467.5348, y: 329.37494, z: -8.125}
+    m_Target: {x: 743.1665, y: 375.73993, z: -1.463197}
     speed: 2
-    m_Value: {x: 467.5348, y: 329.37494, z: -8.125}
+    m_Value: {x: 743.1665, y: 375.73993, z: -1.463197}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -601,9 +601,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 1036.4738
+    m_Target: 388.22906
     speed: 2
-    m_Value: 1036.4738
+    m_Value: 388.22906
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -643,24 +643,24 @@ MonoBehaviour:
     height: 256
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
-    scrollPos: {x: 0, y: 17}
-    m_SelectedIDs: 
-    m_LastClickedID: 0
-    m_ExpandedIDs: 98fbffff000000005e290000da290000062a0000262b0000
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: 40280000
+    m_LastClickedID: 10304
+    m_ExpandedIDs: ded9fbff7401fcff4af2fcffde30feffe230feffe830feff0231fefff0c5ffff98fbffff000000004028000066280000fa2800005e290000f2290000062a0000262b0000402b0000702b0000b82b0000dc2b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: Label.Text
+      m_OriginalName: Label.Text
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: -261770
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 0
       m_ClientGUIView: {fileID: 10}
     m_SearchString: 

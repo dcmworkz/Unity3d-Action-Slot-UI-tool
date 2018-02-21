@@ -40,9 +40,21 @@ public class Manager : MonoBehaviour
             if (capture < actions.Count)
             {
                 Action act = actions[capture];
-                actionButtons[a].onClick.AddListener(() => act.StartAction());
+                actionButtons[a].onClick.AddListener(() => TryStartAction(actionSlots[capture], actions[capture]));
             }
         }
+    }
+
+    private void TryStartAction(Lairinus.UI.ActionSlotUI actionSlot, Action action)
+    {
+        if (actionSlot != null)
+        {
+            if (!actionSlot.isEnabled)
+                return;
+        }
+
+        if (action != null)
+            action.StartAction();
     }
 
     private void UpdateActionInput()
@@ -53,7 +65,8 @@ public class Manager : MonoBehaviour
             {
                 if (Input.GetKeyDown(actions[a].keycode))
                 {
-                    actions[a].StartAction();
+                    if (actionSlots[a].isEnabled)
+                        actions[a].StartAction();
                     break;
                 }
             }
@@ -141,6 +154,20 @@ public class Manager : MonoBehaviour
             if (a != null)
             {
                 a.StartAction();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Inspector access - disables all actions
+    /// </summary>
+    public void OnClick_EnableAllActionSlots(bool enable)
+    {
+        foreach (Lairinus.UI.ActionSlotUI a in actionSlots)
+        {
+            if (a != null)
+            {
+                a.EnableActionSlot(enable);
             }
         }
     }

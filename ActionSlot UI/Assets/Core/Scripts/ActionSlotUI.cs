@@ -7,22 +7,29 @@ namespace Lairinus.UI
     public class ActionSlotUI : MonoBehaviour
     {
         [SerializeField] private bool _showOnAwake = true;
+        [SerializeField] private bool _isEnabled = true;
+        public bool isEnabled { get { return _isEnabled; } }
         private GameObject _thisGameObject = null;
 
         /// <summary>
         /// Configuration for when the Action is currently being used and is alive
         /// </summary>
-        [SerializeField] private Configuration actionActiveConfiguration = new Configuration();
+        [SerializeField] private Configuration _actionActiveConfiguration = new Configuration();
 
         /// <summary>
         /// Configuration for when you cannot use the action for a certain period of time
         /// </summary>
-        [SerializeField] private Configuration actionCooldownConfiguration = new Configuration();
+        [SerializeField] private Configuration _actionCooldownConfiguration = new Configuration();
 
         /// <summary>
         /// Configuration for the base UI element
         /// </summary>
-        [SerializeField] private BaseUIConfiguration baseConfiguration = new BaseUIConfiguration();
+        [SerializeField] private StateConfiguration _normalConfiguration = new StateConfiguration();
+
+        /// <summary>
+        /// Configuration to handle disabled and active states
+        /// </summary>
+        [SerializeField] private StateConfiguration _disabledConfiguration = new StateConfiguration();
 
         /// <summary>
         /// Sets the action slot's main icon image
@@ -30,19 +37,29 @@ namespace Lairinus.UI
         /// <param name="icon"></param>
         public void SetActionIcon(Sprite icon)
         {
-            baseConfiguration.SetActionIcon(icon);
+            _normalConfiguration.SetSpriteInternal(icon);
+        }
+
+        /// <summary>
+        /// Sets the "Disabled" state sprite dynamically
+        /// </summary>
+        /// <param name="sprite"></param>
+        public void SetDisabledSprite(Sprite sprite)
+        {
+            _disabledConfiguration.SetSpriteInternal(sprite);
         }
 
         /// <summary>
         /// Shows or hides this Action Slot
         /// </summary>
         /// <param name="show"></param>
-        public void Show(bool show)
+        public void ShowActionSlot(bool show)
         {
             if (_thisGameObject == null)
                 _thisGameObject = gameObject;
 
             _thisGameObject.SetActive(show);
+            _disabledConfiguration.ShowInternal(!_isEnabled);
         }
 
         /// <summary>
@@ -50,30 +67,72 @@ namespace Lairinus.UI
         /// </summary>
         public void UpdateActionSlot(float remainingCooldown, float totalCooldown, float remainingDuration, float totalDuration)
         {
-            actionActiveConfiguration.Update(remainingDuration, totalDuration);
-            actionCooldownConfiguration.Update(remainingCooldown, totalCooldown);
+            _actionActiveConfiguration.UpdateInternal(remainingDuration, totalDuration);
+            _actionCooldownConfiguration.UpdateInternal(remainingCooldown, totalCooldown);
+            _disabledConfiguration.ShowInternal(!_isEnabled);
+        }
+
+        /// <summary>
+        /// Sets this slot's disabled flag. A disabled slot typically means that players cannot interact with it.
+        /// </summary>
+        public void EnableActionSlot(bool isEnabled)
+        {
+            _isEnabled = isEnabled;
+            _disabledConfiguration.ShowInternal(!isEnabled);
         }
 
         private void Awake()
         {
             _thisGameObject = gameObject;
-            Show(_showOnAwake);
+            ShowActionSlot(_showOnAwake);
         }
 
         [System.Serializable]
-        public class BaseUIConfiguration
+        public class StateConfiguration
         {
-            [SerializeField] private Image _actionIconImage = null;
+            [SerializeField] private Image _imageObjectUI = null;
+            [SerializeField] private Text _textObjectUI = null;
+            [SerializeField] private GameObject _rootObject = null;
 
-            public void SetActionIcon(Sprite actionIconImage)
+            /// <summary>
+            /// Sets the sprite for the ActionSlot's disabled state
+            /// </summary>
+            /// <param name="sprite"></param>
+            public void SetSpriteInternal(Sprite sprite)
             {
-                if (_actionIconImage == null)
+                if (_imageObjectUI == null)
                 {
-                    Debug.LogError("Error! Cannot set the Action Icon sprite because the ActionIconImage object is null!");
+                    Debug.LogError("Error! You're trying to set the sprite inside of \"ActionSlot.DisabledConfiguration.SetDisabledSprite.\" You cannot complete this action while the \"_disabledImage object is null!\" ");
                     return;
                 }
 
-                _actionIconImage.sprite = actionIconImage;
+                _imageObjectUI.sprite = sprite;
+            }
+
+            /// <summary>
+            /// Sets the text for this configuration's "_textObjectUI" field
+            /// </summary>
+            /// <param name="text"></param>
+            public void SetTextInternal(string text)
+            {
+                if (_textObjectUI == null)
+                {
+                    Debug.LogError("Error! You're trying to set the text inside of \"ActionSlot.DisabledConfiguration.SetDisabledSprite.\" The Text object, '_textObjectUI' is null!");
+                    return;
+                }
+
+                _textObjectUI.text = text;
+            }
+
+            /// <summary>
+            /// Shows the UI object
+            /// </summary>
+            public void ShowInternal(bool isShown)
+            {
+                if (_rootObject != null)
+                {
+                    _rootObject.SetActive(isShown);
+                }
             }
         }
 
@@ -110,7 +169,7 @@ namespace Lairinus.UI
             /// </summary>
             /// <param name="remainingTime"></param>
             /// <param name="totalTime"></param>
-            public void Update(float remainingTime, float totalTime)
+            public void UpdateInternal(float remainingTime, float totalTime)
             {
                 if (remainingTime == 0)
                     Show(false);
@@ -141,6 +200,15 @@ namespace Lairinus.UI
 
             private void SetText(float remainingSeconds)
             {
+                // Hide and cache the text GameObject to get better performance (provided this object needs to be hidden)
+                if (textObject != null)
+                {
+                    if (_textCachedGameObject == null)
+                        _textCachedGameObject = textObject.gameObject;
+
+                    _textCachedGameObject.SetActive(_showText && remainingSeconds > 0);
+                }
+
                 if (_showText)
                 {
                     // If the text object is null, we can't show the text
@@ -149,15 +217,8 @@ namespace Lairinus.UI
                         Debug.LogError("Error! The text object is null inside of this ActionSlotUI configuration object, so no text can be shown!");
                         return;
                     }
-                    else
-                    {
-                        // We want to cache the text GameObject to get the optimum performance
-                        if (_textCachedGameObject == null)
-                            _textCachedGameObject = textObject.gameObject;
 
-                        _textCachedGameObject.SetActive(remainingSeconds > 0);
-                    }
-
+                    // Calculate the text value to display on the textObject UI
                     int hourConversion = 3600;
                     int minuteConversion = 60;
                     int fixedAddition = 1;
