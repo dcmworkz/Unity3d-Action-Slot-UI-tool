@@ -104,6 +104,8 @@ public class Manager : MonoBehaviour
                 a.SetDurationAndCooldown(durationInSeconds, a.totalCooldown);
             }
         }
+
+        OnClick_StartActions();
     }
 
     /// <summary>
@@ -120,6 +122,8 @@ public class Manager : MonoBehaviour
                 a.SetDurationAndCooldown(a.totalDuration, cooldownInSeconds);
             }
         }
+
+        OnClick_StartActions();
     }
 
     /// <summary>
@@ -149,12 +153,11 @@ public class Manager : MonoBehaviour
     /// </summary>
     public void OnClick_StartActions()
     {
-        foreach (Action a in actions)
+        for (var a = 0; a < actions.Count; a++)
         {
-            if (a != null)
-            {
-                a.StartAction();
-            }
+            Lairinus.UI.ActionSlotUI actionSlot = actionSlots[a];
+            Action action = actions[a];
+            TryStartAction(actionSlot, action);
         }
     }
 
