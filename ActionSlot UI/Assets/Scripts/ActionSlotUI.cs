@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Lairinus.UI
@@ -27,9 +27,48 @@ namespace Lairinus.UI
         [SerializeField] private bool _isEnabled = true;
 
         /// <summary>
+        /// The button that is clicked to activate this Action from its' Action Slot
+        /// </summary>
+        [SerializeField]
+        private Button _actionSlotButton = null;
+
+        /// <summary>
         /// Configuration for the base UI element
         /// </summary>
         [SerializeField] private StateConfiguration _normalConfiguration = new StateConfiguration();
+
+        // The Action model that will be used
+        private IActionObject _actionModel = null;
+
+        /// <summary>
+        /// Binds the Action model to the controller/view
+        /// </summary>
+        public void SetAction(IActionObject actionObject)
+        {
+            _actionModel = actionObject;
+        }
+
+        /// <summary>
+        /// The Action Slot button is used to call the Action.UseAction() function on the model. 
+        /// </summary>
+        /// <param name="button"></param>
+        public void SetActionSlotButton(Button button)
+        {
+            // Remove the Click from the previous button
+            if (_actionSlotButton != null)
+                _actionSlotButton.onClick.RemoveListener(() => OnClick_UseAction());
+
+            // Add the Click to the current button
+            _actionSlotButton = button;
+            if (_actionSlotButton != null)
+                _actionSlotButton.onClick.AddListener(() => OnClick_UseAction());
+        }
+
+        private void OnClick_UseAction()
+        {
+            if (_actionModel != null)
+                _actionModel.UseAction();
+        }
 
         [SerializeField] private bool _showOnAwake = true;
         private GameObject _thisGameObject = null;
@@ -75,13 +114,57 @@ namespace Lairinus.UI
             _disabledConfiguration.ShowInternal(!_isEnabled);
         }
 
+        // For use with the UpdateActionSlotRoutine() coroutine
+        private bool _automaticUpdatesRunning = false;
+
         /// <summary>
         /// Updates the ActionSlot to reflect the Action's cooldowns and durations.
+        /// If "automaticUpdates" is true, it will start a Coroutine to automatically handle the updates.
+        /// If you are updating multiple action slots at the same time, it will give you better performance to set "useCoroutine" as false.
         /// </summary>
-        public void UpdateActionSlot(float remainingCooldown, float totalCooldown, float remainingDuration, float totalDuration)
+        public void UpdateActionSlot(bool automaticUpdates)
         {
-            _actionActiveConfiguration.UpdateInternal(remainingDuration, totalDuration);
-            _actionCooldownConfiguration.UpdateInternal(remainingCooldown, totalCooldown);
+            // User wants automatic updates
+            if (automaticUpdates && !_automaticUpdatesRunning)
+            {
+                // Stops and Starts in case the Corotuine is already running
+                StopCoroutine("UpdateActionSlotRoutine");
+                StartCoroutine("UpdateActionSlotRoutine");
+            }
+            // User took control of updates; we don't need to do anything. Also stop the automatic update in case it's still going on
+            else
+            {
+                if (_automaticUpdatesRunning)
+                {
+                    _automaticUpdatesRunning = false;
+                    StopCoroutine("UpdateActionSlotRoutine");
+                }
+
+                UpdateActionSlotInternal();
+            }
+        }
+
+        // Automatically updates the Action Slot
+        private IEnumerator UpdateActionSlotRoutine()
+        {
+            _automaticUpdatesRunning = true;
+            while (_automaticUpdatesRunning)
+            {
+                yield return null;
+                UpdateActionSlotInternal();
+            }
+        }
+
+        // Reads the IActionObject item and causes the appropriate updates
+        private void UpdateActionSlotInternal()
+        {
+            if (_actionModel == null)
+            {
+                Debug.LogError(Debugger.actionModelIsNull);
+                return;
+            }
+            _actionActiveConfiguration.UpdateInternal(_actionModel.remainingDurationTime, _actionModel.totalDurationTime);
+            _actionCooldownConfiguration.UpdateInternal(_actionModel.remainingCooldownTime, _actionModel.totalCooldownTime);
             _disabledConfiguration.ShowInternal(!_isEnabled);
         }
 
@@ -92,6 +175,7 @@ namespace Lairinus.UI
         {
             _thisGameObject = gameObject;
             ShowActionSlot(_showOnAwake);
+            SetActionSlotButton(_actionSlotButton);
         }
 
         /// <summary>
@@ -324,6 +408,7 @@ namespace Lairinus.UI
             public const string rootObjectIsNull = "Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!";
             public const string textObjectIsNull = "Error! The text object is null inside of this ActionSlotUI configuration object, so no text can be shown!";
             public const string textObjectIsNullAndCantBeSet = "Error: the UnityEngine.UI.Text object inside of %%custom%% is null, so the text cannot be set";
+            public const string actionModelIsNull = "Error: The ActionModel associated with this action slot is null. Please set an Action model in order to use this Slot!";
         }
     }
 }

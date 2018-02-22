@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
-    [SerializeField] private List<Action> actions = new List<Action>();
+    [SerializeField] private List<DemoAction> actions = new List<DemoAction>();
     [SerializeField] private List<Lairinus.UI.ActionSlotUI> actionSlots = new List<Lairinus.UI.ActionSlotUI>();
     [SerializeField] private List<Button> actionButtons = new List<Button>();
 
@@ -40,13 +39,13 @@ public class Manager : MonoBehaviour
             int capture = a;
             if (capture < actions.Count)
             {
-                Action act = actions[capture];
-                actionButtons[a].onClick.AddListener(() => TryStartAction(actionSlots[capture], actions[capture]));
+                Lairinus.UI.ActionSlotUI actionSlot = actionSlots[capture];
+                actionSlot.SetAction(actions[a]);
             }
         }
     }
 
-    private void TryStartAction(Lairinus.UI.ActionSlotUI actionSlot, Action action)
+    private void TryStartAction(Lairinus.UI.ActionSlotUI actionSlot, DemoAction action)
     {
         if (actionSlot != null)
         {
@@ -55,7 +54,7 @@ public class Manager : MonoBehaviour
         }
 
         if (action != null)
-            action.StartAction();
+            action.UseAction();
     }
 
     private void UpdateActionInput()
@@ -67,7 +66,7 @@ public class Manager : MonoBehaviour
                 if (Input.GetKeyDown(actions[a].keycode))
                 {
                     if (actionSlots[a].isEnabled)
-                        actions[a].StartAction();
+                        actions[a].UseAction();
                     break;
                 }
             }
@@ -78,12 +77,12 @@ public class Manager : MonoBehaviour
     {
         for (var a = 0; a < actions.Count; a++)
         {
-            Action action = actions[a];
+            DemoAction action = actions[a];
             if (a < actionSlots.Count)
             {
                 if (actionSlots[a] != null)
                 {
-                    actionSlots[a].UpdateActionSlot(action.remainingCooldown, action.totalCooldown, action.remainingDuration, action.totalDuration);
+                    actionSlots[a].UpdateActionSlot(true);
                 }
             }
         }
@@ -97,12 +96,12 @@ public class Manager : MonoBehaviour
     /// <param name="durationInSeconds"></param>
     public void OnClick_SetDuration(int durationInSeconds)
     {
-        foreach (Action a in actions)
+        foreach (DemoAction a in actions)
         {
             if (a != null)
             {
                 a.ResetAction();
-                a.SetDurationAndCooldown(durationInSeconds, a.totalCooldown);
+                a.SetDurationAndCooldown(durationInSeconds, a.totalCooldownTime);
             }
         }
 
@@ -115,12 +114,12 @@ public class Manager : MonoBehaviour
     /// <param name="cooldownInSeconds"></param>
     public void OnClick_SetCooldown(int cooldownInSeconds)
     {
-        foreach (Action a in actions)
+        foreach (DemoAction a in actions)
         {
             if (a != null)
             {
                 a.ResetAction();
-                a.SetDurationAndCooldown(a.totalDuration, cooldownInSeconds);
+                a.SetDurationAndCooldown(a.totalDurationTime, cooldownInSeconds);
             }
         }
 
@@ -132,7 +131,7 @@ public class Manager : MonoBehaviour
     /// </summary>
     public void OnClick_ResetActions()
     {
-        foreach (Action a in actions)
+        foreach (DemoAction a in actions)
         {
             if (a != null)
             {
@@ -144,7 +143,7 @@ public class Manager : MonoBehaviour
         {
             if (asu != null)
             {
-                asu.UpdateActionSlot(0, 0, 0, 0);
+                asu.UpdateActionSlot(true);
             }
         }
     }
@@ -157,7 +156,7 @@ public class Manager : MonoBehaviour
         for (var a = 0; a < actions.Count; a++)
         {
             Lairinus.UI.ActionSlotUI actionSlot = actionSlots[a];
-            Action action = actions[a];
+            DemoAction action = actions[a];
             TryStartAction(actionSlot, action);
         }
     }
