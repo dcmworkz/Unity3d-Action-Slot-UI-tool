@@ -19,6 +19,7 @@ public class Manager : MonoBehaviour
     {
         InitializeActionSlots();
         InitializeActionButtons();
+        OnClick_StartActions();
     }
 
     private void InitializeActionSlots()

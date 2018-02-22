@@ -6,13 +6,8 @@ namespace Lairinus.UI
 {
     public class ActionSlotUI : MonoBehaviour
     {
-        [SerializeField] private bool _showOnAwake = true;
-        [SerializeField] private bool _isEnabled = true;
-        public bool isEnabled { get { return _isEnabled; } }
-        private GameObject _thisGameObject = null;
-
         /// <summary>
-        /// Configuration for when the Action is currently being used and is alive
+        /// Configuration for when the Action is currently being used (casting), or when an action is already used and this is tracking its' duration (buff time, active time, etc)
         /// </summary>
         [SerializeField] private Configuration _actionActiveConfiguration = new Configuration();
 
@@ -22,14 +17,32 @@ namespace Lairinus.UI
         [SerializeField] private Configuration _actionCooldownConfiguration = new Configuration();
 
         /// <summary>
+        /// Configuration to handle disabled and active states
+        /// </summary>
+        [SerializeField] private StateConfiguration _disabledConfiguration = new StateConfiguration();
+
+        /// <summary>
+        /// While enabled, this slot will not show its' disabled configuration. If this slot is disabled, the disabled configuration will show
+        /// </summary>
+        [SerializeField] private bool _isEnabled = true;
+
+        /// <summary>
         /// Configuration for the base UI element
         /// </summary>
         [SerializeField] private StateConfiguration _normalConfiguration = new StateConfiguration();
 
+        [SerializeField] private bool _showOnAwake = true;
+        private GameObject _thisGameObject = null;
+        public bool isEnabled { get { return _isEnabled; } }
+
         /// <summary>
-        /// Configuration to handle disabled and active states
+        /// Sets this slot's disabled flag. A disabled slot typically means that players cannot interact with it.
         /// </summary>
-        [SerializeField] private StateConfiguration _disabledConfiguration = new StateConfiguration();
+        public void EnableActionSlot(bool isEnabled)
+        {
+            _isEnabled = isEnabled;
+            _disabledConfiguration.ShowInternal(!isEnabled);
+        }
 
         /// <summary>
         /// Sets the action slot's main icon image
@@ -73,69 +86,17 @@ namespace Lairinus.UI
         }
 
         /// <summary>
-        /// Sets this slot's disabled flag. A disabled slot typically means that players cannot interact with it.
+        /// UnitEngine default - same as a class constructor
         /// </summary>
-        public void EnableActionSlot(bool isEnabled)
-        {
-            _isEnabled = isEnabled;
-            _disabledConfiguration.ShowInternal(!isEnabled);
-        }
-
         private void Awake()
         {
             _thisGameObject = gameObject;
             ShowActionSlot(_showOnAwake);
         }
 
-        [System.Serializable]
-        public class StateConfiguration
-        {
-            [SerializeField] private Image _imageObjectUI = null;
-            [SerializeField] private Text _textObjectUI = null;
-            [SerializeField] private GameObject _rootObject = null;
-
-            /// <summary>
-            /// Sets the sprite for the ActionSlot's disabled state
-            /// </summary>
-            /// <param name="sprite"></param>
-            public void SetSpriteInternal(Sprite sprite)
-            {
-                if (_imageObjectUI == null)
-                {
-                    Debug.LogError("Error! You're trying to set the sprite inside of \"ActionSlot.DisabledConfiguration.SetDisabledSprite.\" You cannot complete this action while the \"_disabledImage object is null!\" ");
-                    return;
-                }
-
-                _imageObjectUI.sprite = sprite;
-            }
-
-            /// <summary>
-            /// Sets the text for this configuration's "_textObjectUI" field
-            /// </summary>
-            /// <param name="text"></param>
-            public void SetTextInternal(string text)
-            {
-                if (_textObjectUI == null)
-                {
-                    Debug.LogError("Error! You're trying to set the text inside of \"ActionSlot.DisabledConfiguration.SetDisabledSprite.\" The Text object, '_textObjectUI' is null!");
-                    return;
-                }
-
-                _textObjectUI.text = text;
-            }
-
-            /// <summary>
-            /// Shows the UI object
-            /// </summary>
-            public void ShowInternal(bool isShown)
-            {
-                if (_rootObject != null)
-                {
-                    _rootObject.SetActive(isShown);
-                }
-            }
-        }
-
+        /// <summary>
+        /// Holds UI references as well as Text optiosn for text display
+        /// </summary>
         [System.Serializable]
         public class Configuration
         {
@@ -155,14 +116,22 @@ namespace Lairinus.UI
 
             public enum TextFormattingOption
             {
-                SecondsOnly,
-                MinutesOnly,
-                HoursOnly,
-                HoursThenMinutesThenSeconds
+                SecondsOnly,    // Shows only seconds regardless of how much time the Action Slot is in the "Active" state or "Cooldown" state for
+                MinutesOnly,    // Shows only minutes regardless of how much time the Action Slot is in the "Active" state or "Cooldown" state for
+                HoursOnly,      // Shows only hours regardless of how much time the Action Slot is in the "Active" state or "Cooldown" state for
+                HoursThenMinutesThenSeconds // If the remaining time is greater than an hour, this shows hours. If it is greater than a minute, it shows minutes. All other cases show seconds. Under 1 second shows the thousandths place
             }
 
-            public bool showConfiguration { get { return _useConfiguration; } set { _useConfiguration = true; } }
+            /// <summary>
+            /// If true, this will show the Text object if there is a text object attached to this class
+            /// </summary>
             public bool showText { get { return _showText; } set { _showText = true; } }
+
+            /// <summary>
+            /// If flagged to use this configuration, it will show when a current state is encountered.
+            /// For instance, if the Action Slot is in the "Active" state it will show "Active"
+            /// </summary>
+            public bool useConfiguration { get { return _useConfiguration; } set { _useConfiguration = true; } }
 
             /// <summary>
             /// Updates the values in the configuration to show/hide appropriately
@@ -172,25 +141,30 @@ namespace Lairinus.UI
             public void UpdateInternal(float remainingTime, float totalTime)
             {
                 if (remainingTime == 0)
-                    Show(false);
+                    ShowInternal(false);
                 else
                 {
-                    if (showConfiguration && remainingTime > 0)
+                    if (useConfiguration && remainingTime > 0)
                     {
-                        Show(true);
-                        SetText(remainingTime);
-                        SetFillAmount(remainingTime, totalTime);
+                        ShowInternal(true);
+                        SetTextInternal(remainingTime);
+                        SetFillAmountInternal(remainingTime, totalTime);
                     }
                     else
-                        Show(false);
+                        ShowInternal(false);
                 }
             }
 
-            private void SetFillAmount(float remainingTime, float totalTime)
+            /// <summary>
+            /// Sets the image's fill percent based on the remaining time / total time
+            /// </summary>
+            /// <param name="remainingTime"></param>
+            /// <param name="totalTime"></param>
+            private void SetFillAmountInternal(float remainingTime, float totalTime)
             {
                 if (filledImage == null)
                 {
-                    Debug.LogError("Error! Cannot set the value of the image because it doesn't exist!");
+                    Debug.LogError(Debugger.fillImageIsNull);
                     return;
                 }
 
@@ -198,7 +172,11 @@ namespace Lairinus.UI
                 filledImage.fillAmount = remainingTime / totalTime;
             }
 
-            private void SetText(float remainingSeconds)
+            /// <summary>
+            /// If there's a text object attached here, it sets it so long as it is allowed to be used according to the showText flag.
+            /// </summary>
+            /// <param name="remainingSeconds"></param>
+            private void SetTextInternal(float remainingSeconds)
             {
                 // Hide and cache the text GameObject to get better performance (provided this object needs to be hidden)
                 if (textObject != null)
@@ -214,7 +192,7 @@ namespace Lairinus.UI
                     // If the text object is null, we can't show the text
                     if (textObject == null)
                     {
-                        Debug.LogError("Error! The text object is null inside of this ActionSlotUI configuration object, so no text can be shown!");
+                        Debug.LogError(Debugger.textObjectIsNull);
                         return;
                     }
 
@@ -272,16 +250,80 @@ namespace Lairinus.UI
                 }
             }
 
-            private void Show(bool show)
+            private void ShowInternal(bool show)
             {
                 if (rootObject == null)
                 {
-                    Debug.LogError("Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!");
+                    Debug.LogError(Debugger.rootObjectIsNull);
                     return;
                 }
 
                 rootObject.SetActive(show);
             }
+        }
+
+        /// <summary>
+        /// The configuration for other Action Slot states not including "Active" and "Cooldown"
+        /// </summary>
+        [System.Serializable]
+        public class StateConfiguration
+        {
+            [SerializeField] private Image _imageObjectUI = null;
+            [SerializeField] private GameObject _rootObject = null;
+            [SerializeField] private Text _textObjectUI = null;
+
+            /// <summary>
+            /// Sets the sprite for the ActionSlot's disabled state
+            /// </summary>
+            /// <param name="sprite"></param>
+            public void SetSpriteInternal(Sprite sprite)
+            {
+                if (_imageObjectUI == null)
+                {
+                    Debug.LogError(Debugger.textObjectIsNullAndCantBeSet.Replace("%%custom%%", "SetSpriteInternal()"));
+                    return;
+                }
+
+                _imageObjectUI.sprite = sprite;
+            }
+
+            /// <summary>
+            /// Sets the text for this configuration's "_textObjectUI" field
+            /// </summary>
+            /// <param name="text"></param>
+            public void SetTextInternal(string text)
+            {
+                if (_textObjectUI == null)
+                {
+                    Debug.LogError(Debugger.textObjectIsNullAndCantBeSet.Replace("%%custom%%", "SetTextInternal()"));
+                    return;
+                }
+
+                _textObjectUI.text = text;
+            }
+
+            /// <summary>
+            /// Shows the UI object internally
+            /// </summary>
+            public void ShowInternal(bool isShown)
+            {
+                if (_rootObject != null)
+                {
+                    _rootObject.SetActive(isShown);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Contains general debugging strings to give the user some indication of what went wrong
+        /// </summary>
+        private class Debugger
+        {
+            public const string fillImageIsNull = "Error! Cannot set the value of the image because it doesn't exist!";
+            public const string imageObjectIsNullAndCantBeSet = "Error: the UnityEngine.UI.Image object inside of %%custom%% is null, so the sprite cannot be set";
+            public const string rootObjectIsNull = "Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!";
+            public const string textObjectIsNull = "Error! The text object is null inside of this ActionSlotUI configuration object, so no text can be shown!";
+            public const string textObjectIsNullAndCantBeSet = "Error: the UnityEngine.UI.Text object inside of %%custom%% is null, so the text cannot be set";
         }
     }
 }

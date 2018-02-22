@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/WebsiteDemo.unity
+- path: Assets/Test/Scenes/WebsiteDemo.unity
   isLoaded: 1
   isActive: 1
