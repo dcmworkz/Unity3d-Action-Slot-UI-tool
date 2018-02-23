@@ -22,17 +22,6 @@ namespace Lairinus.UI
         [SerializeField] private StateConfiguration _disabledConfiguration = new StateConfiguration();
 
         /// <summary>
-        /// While enabled, this slot will not show its' disabled configuration. If this slot is disabled, the disabled configuration will show
-        /// </summary>
-        [SerializeField] private bool _isEnabled = true;
-
-        /// <summary>
-        /// The button that is clicked to activate this Action from its' Action Slot
-        /// </summary>
-        [SerializeField]
-        private Button _actionSlotButton = null;
-
-        /// <summary>
         /// Configuration for the base UI element
         /// </summary>
         [SerializeField] private StateConfiguration _normalConfiguration = new StateConfiguration();
@@ -41,11 +30,53 @@ namespace Lairinus.UI
         private IActionObject _actionModel = null;
 
         /// <summary>
+        /// The button that is clicked to activate this Action from its' Action Slot
+        /// </summary>
+        [SerializeField]
+        private Button _actionSlotButton = null;
+
+        // For use with the UpdateActionSlotRoutine() coroutine
+        private bool _automaticUpdatesRunning = false;
+
+        /// <summary>
+        /// If true, we can debug messages to the console
+        /// </summary>
+        [SerializeField] private bool _enableDebugging = false;
+
+        /// <summary>
+        /// While enabled, this slot will not show its' disabled configuration. If this slot is disabled, the disabled configuration will show
+        /// </summary>
+        [SerializeField] private bool _isEnabled = true;
+
+        [SerializeField] private bool _showOnAwake = true;
+        private GameObject _thisGameObject = null;
+        public bool enableDebugging { get { return _enableDebugging; } set { _enableDebugging = value; } }
+        public bool isEnabled { get { return _isEnabled; } }
+
+        /// <summary>
+        /// Sets this slot's disabled flag. A disabled slot typically means that players cannot interact with it.
+        /// </summary>
+        public void EnableActionSlot(bool isEnabled)
+        {
+            _isEnabled = isEnabled;
+            _disabledConfiguration.ShowInternal(!isEnabled);
+        }
+
+        /// <summary>
         /// Binds the Action model to the controller/view
         /// </summary>
         public void SetAction(IActionObject actionObject)
         {
             _actionModel = actionObject;
+        }
+
+        /// <summary>
+        /// Sets the action slot's main icon image
+        /// </summary>
+        /// <param name="icon"></param>
+        public void SetActionIcon(Sprite icon)
+        {
+            _normalConfiguration.SetSpriteInternal(icon);
         }
 
         /// <summary>
@@ -62,34 +93,6 @@ namespace Lairinus.UI
             _actionSlotButton = button;
             if (_actionSlotButton != null)
                 _actionSlotButton.onClick.AddListener(() => OnClick_UseAction());
-        }
-
-        private void OnClick_UseAction()
-        {
-            if (_actionModel != null)
-                _actionModel.UseAction();
-        }
-
-        [SerializeField] private bool _showOnAwake = true;
-        private GameObject _thisGameObject = null;
-        public bool isEnabled { get { return _isEnabled; } }
-
-        /// <summary>
-        /// Sets this slot's disabled flag. A disabled slot typically means that players cannot interact with it.
-        /// </summary>
-        public void EnableActionSlot(bool isEnabled)
-        {
-            _isEnabled = isEnabled;
-            _disabledConfiguration.ShowInternal(!isEnabled);
-        }
-
-        /// <summary>
-        /// Sets the action slot's main icon image
-        /// </summary>
-        /// <param name="icon"></param>
-        public void SetActionIcon(Sprite icon)
-        {
-            _normalConfiguration.SetSpriteInternal(icon);
         }
 
         /// <summary>
@@ -113,9 +116,6 @@ namespace Lairinus.UI
             _thisGameObject.SetActive(show);
             _disabledConfiguration.ShowInternal(!_isEnabled);
         }
-
-        // For use with the UpdateActionSlotRoutine() coroutine
-        private bool _automaticUpdatesRunning = false;
 
         /// <summary>
         /// Updates the ActionSlot to reflect the Action's cooldowns and durations.
@@ -144,30 +144,6 @@ namespace Lairinus.UI
             }
         }
 
-        // Automatically updates the Action Slot
-        private IEnumerator UpdateActionSlotRoutine()
-        {
-            _automaticUpdatesRunning = true;
-            while (_automaticUpdatesRunning)
-            {
-                yield return null;
-                UpdateActionSlotInternal();
-            }
-        }
-
-        // Reads the IActionObject item and causes the appropriate updates
-        private void UpdateActionSlotInternal()
-        {
-            if (_actionModel == null)
-            {
-                Debug.LogError(Debugger.actionModelIsNull);
-                return;
-            }
-            _actionActiveConfiguration.UpdateInternal(_actionModel.remainingDurationTime, _actionModel.totalDurationTime);
-            _actionCooldownConfiguration.UpdateInternal(_actionModel.remainingCooldownTime, _actionModel.totalCooldownTime);
-            _disabledConfiguration.ShowInternal(!_isEnabled);
-        }
-
         /// <summary>
         /// UnitEngine default - same as a class constructor
         /// </summary>
@@ -178,6 +154,39 @@ namespace Lairinus.UI
             SetActionSlotButton(_actionSlotButton);
         }
 
+        /// <summary>
+        /// Interally maps the action to the button click
+        /// </summary>
+        private void OnClick_UseAction()
+        {
+            if (_actionModel != null)
+                _actionModel.UseAction();
+        }
+        // Reads the IActionObject item and causes the appropriate updates
+        private void UpdateActionSlotInternal()
+        {
+            if (_actionModel == null)
+            {
+                if (_enableDebugging)
+                    Debug.LogError(Debugger.actionModelIsNull);
+
+                return;
+            }
+            _actionActiveConfiguration.UpdateInternal(_actionModel.remainingDurationTime, _actionModel.totalDurationTime, _enableDebugging);
+            _actionCooldownConfiguration.UpdateInternal(_actionModel.remainingCooldownTime, _actionModel.totalCooldownTime, _enableDebugging);
+            _disabledConfiguration.ShowInternal(!_isEnabled);
+        }
+
+        // Automatically updates the Action Slot
+        private IEnumerator UpdateActionSlotRoutine()
+        {
+            _automaticUpdatesRunning = true;
+            while (_automaticUpdatesRunning)
+            {
+                yield return null;
+                UpdateActionSlotInternal();
+            }
+        }
         /// <summary>
         /// Holds UI references as well as Text optiosn for text display
         /// </summary>
@@ -222,7 +231,7 @@ namespace Lairinus.UI
             /// </summary>
             /// <param name="remainingTime"></param>
             /// <param name="totalTime"></param>
-            public void UpdateInternal(float remainingTime, float totalTime)
+            public void UpdateInternal(float remainingTime, float totalTime, bool _enableDebugging)
             {
                 if (remainingTime == 0)
                     ShowInternal(false);
@@ -232,7 +241,7 @@ namespace Lairinus.UI
                     {
                         ShowInternal(true);
                         SetTextInternal(remainingTime);
-                        SetFillAmountInternal(remainingTime, totalTime);
+                        SetFillAmountInternal(remainingTime, totalTime, _enableDebugging);
                     }
                     else
                         ShowInternal(false);
@@ -244,11 +253,13 @@ namespace Lairinus.UI
             /// </summary>
             /// <param name="remainingTime"></param>
             /// <param name="totalTime"></param>
-            private void SetFillAmountInternal(float remainingTime, float totalTime)
+            private void SetFillAmountInternal(float remainingTime, float totalTime, bool _debuggingEnabled)
             {
                 if (filledImage == null)
                 {
-                    Debug.LogError(Debugger.fillImageIsNull);
+                    if (_debuggingEnabled)
+                        Debug.LogError(Debugger.fillImageIsNull);
+
                     return;
                 }
 
@@ -403,12 +414,12 @@ namespace Lairinus.UI
         /// </summary>
         private class Debugger
         {
+            public const string actionModelIsNull = "Error: The ActionModel associated with this action slot is null. Please set an Action model in order to use this Slot!";
             public const string fillImageIsNull = "Error! Cannot set the value of the image because it doesn't exist!";
             public const string imageObjectIsNullAndCantBeSet = "Error: the UnityEngine.UI.Image object inside of %%custom%% is null, so the sprite cannot be set";
             public const string rootObjectIsNull = "Error! The root object attached to this Configuration script is null! You must assign this value for the 'ShowConfiguration' script to work!";
             public const string textObjectIsNull = "Error! The text object is null inside of this ActionSlotUI configuration object, so no text can be shown!";
             public const string textObjectIsNullAndCantBeSet = "Error: the UnityEngine.UI.Text object inside of %%custom%% is null, so the text cannot be set";
-            public const string actionModelIsNull = "Error: The ActionModel associated with this action slot is null. Please set an Action model in order to use this Slot!";
         }
     }
 }

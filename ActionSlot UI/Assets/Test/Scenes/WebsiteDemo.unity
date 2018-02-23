@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311992, g: 0.38074034, b: 0.35872713, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -328,7 +328,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b843b94689cf673418a11714f5ee3d7c, type: 3}
-    m_FontSize: 20
+    m_FontSize: 15
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -339,7 +339,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Durations
+  m_Text: Active Time
 --- !u!222 &55115766
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -497,6 +497,16 @@ Prefab:
         type: 2}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114012506771204966, guid: a1235d216b022694ebc9ca6d2d479fa0,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 1543296863}
+    - target: {fileID: 114012506771204966, guid: a1235d216b022694ebc9ca6d2d479fa0,
+        type: 2}
+      propertyPath: _enableDebugging
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a1235d216b022694ebc9ca6d2d479fa0, type: 2}
@@ -1264,6 +1274,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114793484939660042, guid: 0ce4f6066d6fd454292d6afa859aa2b6,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 1751654776}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0ce4f6066d6fd454292d6afa859aa2b6, type: 2}
   m_IsPrefabParent: 0
@@ -1364,6 +1379,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114910108415707142, guid: 97815701ed68e4f4d8f51fd18af35308,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 2071749780}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 97815701ed68e4f4d8f51fd18af35308, type: 2}
   m_IsPrefabParent: 0
@@ -1464,6 +1484,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114462285852634300, guid: 0ff428b6226d7a14b977845c21c65072,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 607358629}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0ff428b6226d7a14b977845c21c65072, type: 2}
   m_IsPrefabParent: 0
@@ -2176,7 +2201,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b843b94689cf673418a11714f5ee3d7c, type: 3}
-    m_FontSize: 20
+    m_FontSize: 15
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 1
@@ -2187,7 +2212,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cooldowns
+  m_Text: Cooldown Time
 --- !u!222 &691729347
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2604,6 +2629,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114960418661624360, guid: 4ab5c2ec1791638488ea3b39db3cb689,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 954786493}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4ab5c2ec1791638488ea3b39db3cb689, type: 2}
   m_IsPrefabParent: 0
@@ -3120,6 +3150,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114700465397710974, guid: d5af2a4e22d8d1141a8a03630ca778be,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 1928602869}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d5af2a4e22d8d1141a8a03630ca778be, type: 2}
   m_IsPrefabParent: 0
@@ -4069,6 +4104,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114319445373380138, guid: 45fb619b6ebd47149b2f9c20421974a3,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 700938284}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 45fb619b6ebd47149b2f9c20421974a3, type: 2}
   m_IsPrefabParent: 0
@@ -4829,6 +4869,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114989437661142508, guid: 1dc2f847d58b2f44e9465702e8954426,
+        type: 2}
+      propertyPath: _actionSlotButton
+      value: 
+      objectReference: {fileID: 193318996}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1dc2f847d58b2f44e9465702e8954426, type: 2}
   m_IsPrefabParent: 0

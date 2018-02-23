@@ -17,7 +17,6 @@ public class Manager : MonoBehaviour
     private void Awake()
     {
         InitializeActionSlots();
-        InitializeActionButtons();
         OnClick_StartActions();
     }
 
@@ -28,19 +27,7 @@ public class Manager : MonoBehaviour
             if (a < actions.Count && actions[a] != null)
             {
                 actionSlots[a].SetActionIcon(actions[a].icon);
-            }
-        }
-    }
-
-    private void InitializeActionButtons()
-    {
-        for (var a = 0; a < actionButtons.Count; a++)
-        {
-            int capture = a;
-            if (capture < actions.Count)
-            {
-                Lairinus.UI.ActionSlotUI actionSlot = actionSlots[capture];
-                actionSlot.SetAction(actions[a]);
+                actionSlots[a].SetAction(actions[a]);
             }
         }
     }
